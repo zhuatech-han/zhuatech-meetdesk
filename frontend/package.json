@@ -1,0 +1,34 @@
+{
+  "name": "zhuatech-meetdesk-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "自行部署的视频会议与远程演示 / self-hosted video meetings and remote presentations",
+  "author": "上海如静知华信息科技有限公司",
+  "homepage": "https://www.zhuatech.cn/",
+  "license": "SEE LICENSE IN ../LICENSE",
+  "engines": {
+    "node": ">=24.19.0"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "lint": "eslint src vite.config.js",
+    "format": "prettier --write src vite.config.js eslint.config.js index.html package.json",
+    "format:check": "prettier --check src vite.config.js eslint.config.js index.html package.json",
+    "test": "node --test src/*.test.js"
+  },
+  "dependencies": {
+    "@lucide/vue": "1.48.0",
+    "vue": "3.5.43",
+    "livekit-client": "2.22.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "6.0.8",
+    "eslint": "10.11.0",
+    "eslint-plugin-vue": "10.11.1",
+    "globals": "16.5.0",
+    "prettier": "3.9.9",
+    "vite": "8.1.5"
+  },
+  "type": "module"
+}
