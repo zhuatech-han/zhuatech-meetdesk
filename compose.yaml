@@ -1,0 +1,56 @@
+# Copyright 2026 上海如静知华信息科技有限公司 · https://www.zhuatech.cn/ · 微信 zhuatech / zhuatech2
+services:
+  mysql:
+    restart: unless-stopped
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: zhuatech_meetdesk
+      MYSQL_USER: meetdesk
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:?set DATABASE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD}
+    volumes: [mysql-data:/var/lib/mysql]
+    healthcheck:
+      test: [CMD-SHELL, 'mysqladmin ping -h 127.0.0.1 -uroot -p"$$MYSQL_ROOT_PASSWORD" --silent']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  livekit:
+    restart: unless-stopped
+    image: livekit/livekit-server:v1.13.9
+    command: [--config, /etc/livekit.yaml]
+    volumes: ['${LIVEKIT_CONFIG_PATH:-./runtime/livekit.yaml}:/etc/livekit.yaml:ro']
+    ports:
+      - '${RTC_BIND_ADDRESS:-127.0.0.1}:${RTC_TCP_PORT:-7921}:${RTC_TCP_PORT:-7921}/tcp'
+      - '${RTC_BIND_ADDRESS:-127.0.0.1}:${RTC_UDP_PORT:-7922}:${RTC_UDP_PORT:-7922}/udp'
+      - '${RTC_BIND_ADDRESS:-127.0.0.1}:${TURN_UDP_PORT:-7923}:${TURN_UDP_PORT:-7923}/udp'
+      - '${RTC_BIND_ADDRESS:-127.0.0.1}:${TURN_RELAY_START:-7930}-${TURN_RELAY_END:-7940}:${TURN_RELAY_START:-7930}-${TURN_RELAY_END:-7940}/udp'
+  backend:
+    restart: unless-stopped
+    build: ./backend
+    environment:
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?set DATABASE_PASSWORD}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:?set LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:?set LIVEKIT_API_SECRET}
+    depends_on:
+      mysql: {condition: service_healthy}
+      livekit: {condition: service_started}
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, http://localhost:8080/actuator/health]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+  frontend:
+    restart: unless-stopped
+    build: ./frontend
+    ports: ['${BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-8131}:8080']
+    depends_on:
+      backend: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, wget, -q, --spider, http://127.0.0.1:8080/]
+      interval: 5s
+      retries: 10
+volumes:
+  mysql-data:
