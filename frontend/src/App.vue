@@ -120,6 +120,7 @@ const stateName = (s) =>
     REJECTED: t("未获准入", "Not admitted"),
   })[s] || s;
 const me = computed(() => selected.value?.myAttendee || {}),
+  admitted = computed(() => me.value.status === "ADMITTED"),
   canManage = computed(() => !!selected.value?.canManage),
   connected = computed(() => mediaState.value === "connected"),
   terminal = computed(() =>
