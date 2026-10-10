@@ -6,6 +6,8 @@
 
 - 后端 66 项测试：54 项真实 Security/JPA/Flyway 集成，使用独立 H2 测试数据库，RTC 网关与时钟替身；12 项媒体 JWT/管理协议单元测试。
 - Frontend: 8 API/session tests, ESLint, Prettier and production build.
+- Vue 模板使用 `vue/no-undef-properties` 检查未定义状态。浏览器另验证聊天输入：已准入主持人、成员及访客可以发送；等候、移出、会议结束或主持人关闭聊天时不能发送。API/session 测试不替代这些页面状态验收。
+- Vue templates check undefined state with `vue/no-undef-properties`. Browser acceptance separately verifies the chat composer for admitted hosts, members and guests, and blocked waiting, removed, ended or host-disabled states. API/session tests do not replace UI-state acceptance.
 - 配置脚本 4 项保护测试：保留已有私有配置、显式渲染、强密钥与私有路径边界。
 - Actual HTTP acceptance: 162 checks against a fresh MySQL/Compose deployment, covering login, permissions, organization isolation, meetings, admission, guests, invitations, chat, controls, terminal state, audit and reports.
 - 媒体验收使用两台独立 SDK 客户端通过真实 Nginx 准入层和 LiveKit，发布不同语音、合成摄像头与合成屏幕轨道；校验远端频率和解码颜色、持续接收、实际出席观察。短测另验证观看模式、移出断连及未过期旧票据拒绝。
